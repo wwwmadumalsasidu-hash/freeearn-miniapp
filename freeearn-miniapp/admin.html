@@ -1,1 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<h2>👑 Admin Panel</h2>
+<div id="list"></div>
+
+<script src="config.js"></script>
+<script>
+const ADMIN_ID="5896916220";
+
+if(UID!==ADMIN_ID){
+  document.body.innerHTML="<h2>⛔ Access Denied</h2>";
+}
+
+db.collection("withdraw_requests").onSnapshot(snap=>{
+  let html="";
+  snap.forEach(doc=>{
+    const d=doc.data();
+    html+=`
+    <div class="box">
+      <p>User: ${d.username}</p>
+      <p>Coins: ${d.coins}</p>
+      <p>Status: ${d.status}</p>
+      <button onclick="approve('${doc.id}','${d.uid}',${d.coins})">Approve</button>
+    </div>`;
+  });
+  list.innerHTML=html;
+});
+
+function approve(id,uid,coins){
+  db.collection("withdraw_requests").doc(id).update({status:"success"});
+  db.collection("users").doc(uid)
+    .update({coins:firebase.firestore.FieldValue.increment(-coins)});
+}
+</script>
+</body>
+</html>
