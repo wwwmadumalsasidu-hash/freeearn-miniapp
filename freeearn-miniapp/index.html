@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FreeEarn Lanka</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<h2>💰 FreeEarn Lanka</h2>
+
+<div class="box">
+  <p id="coins">Coins: 0</p>
+  <p id="refs">Referrals: 0</p>
+</div>
+
+<button onclick="earn()">🪙 Earn Coins</button>
+<br>
+<a href="withdraw.html">💸 Withdraw</a>
+
+<script src="config.js"></script>
+<script>
+const userRef = db.collection("users").doc(UID);
+
+// Create user if not exists
+userRef.get().then(doc=>{
+  if(!doc.exists){
+    userRef.set({
+      coins: 0,
+      referrals: 0,
+      lastEarn: 0
+    });
+  } else {
+    const d = doc.data();
+    document.getElementById("coins").innerText = "Coins: " + d.coins;
+    document.getElementById("refs").innerText = "Referrals: " + d.referrals;
+  }
+});
+
+function earn(){
+  const now = Date.now();
+
+  userRef.get().then(doc=>{
+    const last = doc.data().lastEarn || 0;
+
+    // 🔐 hidden protection (user sees unlimited)
+    if(now - last < 30000){
+      alert("⏳ Please wait a few seconds");
+      return;
+    }
+
+    // Open Monetag Smartlink
+    window.open("https://YOUR_MONETAG_SMARTLINK", "_blank");
+
+    userRef.update({
+      coins: firebase.firestore.FieldValue.increment(1),
+      lastEarn: now
+    });
+
+    document.getElementById("coins").innerText =
+      "Coins: " + (doc.data().coins + 1);
+  });
+}
+</script>
+
+</body>
+</html>
