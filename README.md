@@ -1,1 +1,0 @@
-# freeearn-miniapp
