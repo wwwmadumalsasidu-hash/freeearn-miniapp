@@ -1,1 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Withdraw</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<h2>💸 Withdraw</h2>
+
+<div class="box">
+  <p>Minimum Withdraw: <b>1000 Coins</b></p>
+  <p>Minimum Referrals: <b>5</b></p>
+  <p>1000 Coins = <b>LKR 100</b> | <b>0.30 USDT</b></p>
+</div>
+
+<input id="coins" type="number" placeholder="Coins to withdraw">
+<select id="method">
+  <option value="bank">Sri Lanka Bank</option>
+  <option value="binance">Binance USDT (TRC20)</option>
+</select>
+
+<input id="details" placeholder="Bank details OR TRC20 address">
+
+<button onclick="submitWithdraw()">Submit Withdraw</button>
+
+<p id="msg"></p>
+
+<script src="config.js"></script>
+<script>
+const userRef = db.collection("users").doc(UID);
+
+function submitWithdraw(){
+  const coins = parseInt(document.getElementById("coins").value);
+  const method = document.getElementById("method").value;
+  const details = document.getElementById("details").value;
+
+  userRef.get().then(doc=>{
+    const d = doc.data();
+
+    if(d.coins < 1000){
+      alert("Minimum 1000 coins required");
+      return;
+    }
+    if(d.referrals < 5){
+      alert("Minimum 5 referrals required");
+      return;
+    }
+    if(coins > d.coins){
+      alert("Not enough coins");
+      return;
+    }
+
+    db.collection("withdraw_requests").add({
+      uid: UID,
+      username: USERNAME,
+      coins: coins,
+      method: method,
+      details: details,
+      status: "pending",
+      time: Date.now()
+    });
+
+    document.getElementById("msg").innerText =
+      "⏳ Withdraw request submitted (Pending)";
+  });
+}
+</script>
+
+</body>
+  </html>
